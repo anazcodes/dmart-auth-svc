@@ -1,0 +1,52 @@
+syntax= "proto3";
+
+package authsvc;
+
+
+option go_package = "./internal/pb";
+
+
+service AuthService {
+ rpc AdminLogin(AdminLoginRequest) returns (AdminLoginResponse){} 
+ rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse){}
+ rpc UserLogin(UserLoginRequest) returns (UserLoginResponse) {}
+}
+
+
+message AdminLoginRequest {
+    string username =1;
+    string password=2;
+}
+
+message AdminLoginResponse {
+    int64 status=1;
+    string msg = 2;
+    string error=3;
+}
+
+
+message CreateAccountRequest {
+    string username = 1;
+    string email = 2;
+    int64 phone  = 3;
+    string password = 4;
+}
+
+message CreateAccountResponse {
+    int64 status = 1; 
+    string msg = 2;
+    string error=3;
+}
+
+// user can login using email, phone or using username
+message UserLoginRequest {
+    string loginInput =1 ;
+    string password = 2;
+}
+
+
+message UserLoginResponse {
+int64 status = 1;
+string msg = 2;
+    string error=3;
+}

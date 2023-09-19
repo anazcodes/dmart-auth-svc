@@ -4,22 +4,22 @@ import (
 	"time"
 )
 
-type model struct {
+type Model struct {
 	ID        uint      `gorm:"primarykey"`
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
 }
 
 type User struct {
-	model
-	username string `gorm:"not null"`
-	email    string //can login with email or phone, nullable field
-	phone    int64  //can login with email or phone, nullable fields
-	password string `gorm:"not null"`
+	Model
+	Username string `gorm:"not null"`
+	Email    string //can login with email or phone, nullable field
+	Phone    int64  //can login with email or phone, nullable fields
+	Password string `gorm:"not null"`
 }
 
 type Address struct {
-	model
+	Model
 	Name             string `gorm:"not null"`
 	PhoneNumber      string `gorm:"not null"`
 	PostalCode       string `gorm:"not null"`

@@ -30,6 +30,7 @@ message CreateAccountRequest {
     string email = 2;
     int64 phone  = 3;
     string password = 4;
+    string password2 = 5;
 }
 
 message CreateAccountResponse {

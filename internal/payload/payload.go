@@ -12,7 +12,7 @@ type UserAccount struct {
 	ID        uint
 	Username  string
 	Email     string
-	Phone     int64
+	Phone     int64 // cant use country code with it
 	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -21,6 +21,10 @@ type UserAccount struct {
 type UserLogin struct {
 	LoginInput string // user can login using email, phone or using username
 	Password   string
+}
+type Contact struct {
+	Email string
+	Phone int64
 }
 
 type Address struct {
@@ -36,6 +40,10 @@ type Address struct {
 	IsDefault        bool
 }
 
+type Time struct {
+	Now time.Time
+}
+
 type response struct {
 	status int
 	msg    string
@@ -43,6 +51,7 @@ type response struct {
 	err    interface{}
 }
 
+// Function for passing response message
 func Response(status int, msg string, data, err interface{}) response {
 
 	return response{

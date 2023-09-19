@@ -1,6 +1,11 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"context"
+
+	"github.com/anazibinurasheed/dmart-auth-svc/internal/utils"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	DbURL string `mapstructure:"DB_URL"`
@@ -9,13 +14,14 @@ type Config struct {
 
 func LoadConfigs() (config Config, err error) {
 	viper.AddConfigPath("./internal/config/envs")
-	viper.SetConfigType("env")
 	viper.SetConfigName("dev")
+	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 	err = viper.ReadInConfig()
-	if err != nil {
+
+	if utils.HasError(context.Background(), err) {
 		return
 	}
-	viper.Unmarshal(&config)
+	err = viper.Unmarshal(&config)
 	return
 }

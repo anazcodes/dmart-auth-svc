@@ -1,4 +1,4 @@
-package repository
+package repo
 
 import (
 	contxt "context"
@@ -6,8 +6,8 @@ import (
 
 	payload "github.com/anazibinurasheed/dmart-auth-svc/internal/payload"
 	"github.com/anazibinurasheed/dmart-auth-svc/internal/pb"
-	"github.com/anazibinurasheed/dmart-auth-svc/internal/repository/interfaces"
-	"github.com/anazibinurasheed/dmart-auth-svc/internal/utils"
+	"github.com/anazibinurasheed/dmart-auth-svc/internal/repo/interfaces"
+	util "github.com/anazibinurasheed/dmart-auth-svc/internal/util"
 	"gorm.io/gorm"
 )
 
@@ -35,19 +35,19 @@ func (u *userRepo) CreateAccount(ctx context, req *pb.CreateAccountRequest, t pa
 	var data payload.UserAccount
 	query := `insert into users (username,email,phone,password,created_at,updated_at)
 		      values ($1,$2,$3,$4,$5,$6) returning *;`
-	utils.HighlightError("create account")
+	util.Logger("create account")
 	err := u.DB.Raw(query, req.Username, req.Email, req.Phone, req.Password, t.Now, t.Now).Scan(&data).Error
-	utils.HighlightError(fmt.Sprint(data))
+	util.Logger(fmt.Sprint(data))
 	return err
 }
 
 func (u *userRepo) GetMatchingAccountUsingPhone(ctx context, req payload.Contact) (payload.UserAccount, error) {
 	var data payload.UserAccount
 	query := `select * from users where phone = $1;`
-	utils.HighlightError("GetMatchingAccountUsingPhone")
+	util.Logger("GetMatchingAccountUsingPhone")
 	err := u.DB.Raw(query, req.Phone).Scan(&data).Error
-	utils.HighlightError(fmt.Sprint(data))
-	utils.HighlightError(fmt.Sprint(req.Phone))
+	util.Logger(fmt.Sprint(data))
+	util.Logger(fmt.Sprint(req.Phone))
 
 	return data, err
 }
@@ -55,17 +55,30 @@ func (u *userRepo) GetMatchingAccountUsingPhone(ctx context, req payload.Contact
 func (u *userRepo) GetMatchingAccountUsingEmail(ctx context, req payload.Contact) (payload.UserAccount, error) {
 	var data payload.UserAccount
 	query := `select * from users where email = $1;`
-	utils.HighlightError("GetMatchingAccountUsingEmail")
+	util.Logger("GetMatchingAccountUsingEmail")
 
 	err := u.DB.Raw(query, req.Email).Scan(&data).Error
 	return data, err
 }
 
+func (u *userRepo) GetUserAccountByName(ctx context, username string) (payload.UserAccount, error) {
+	var data payload.UserAccount
+	query := `select * from users where username = $1;`
+	err := u.DB.Raw(query, username).Scan(&data).Error
+	return data, err
+}
+
+func (u *userRepo) GetUserAccountByID(ctx context, userID uint) (payload.UserAccount, error) {
+	var data payload.UserAccount
+	query := `select * from users where id = $1;`
+	err := u.DB.Raw(query, userID).Scan(&data).Error
+	return data, err
+}
+
 func (u *userRepo) DropTable() {
 	query := `drop table addresses ;drop table users;`
-	utils.HighlightError("GetMatchingAccountUsingEmail")
+	util.Logger("GetMatchingAccountUsingEmail")
 
 	err := u.DB.Raw(query)
-	utils.HighlightError(fmt.Sprint(err.Error))
-	return
+	util.Logger(fmt.Sprint(err.Error))
 }

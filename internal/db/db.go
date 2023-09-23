@@ -9,7 +9,7 @@ import (
 )
 
 func InitDB(cfg config.Config) (*gorm.DB, error) {
-	dsn := cfg.DbURL
+	dsn := cfg.DBUrl
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true, Logger: logger.Default.LogMode(logger.Info)})
 	db.Debug()

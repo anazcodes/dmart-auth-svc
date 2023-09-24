@@ -30,13 +30,13 @@ func (s *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest
 	if err == usecase.ErrDuplicatingPhone {
 		return &pb.CreateAccountResponse{
 			Status: http.StatusConflict,
-			Msg:    "user already have an account with this phone",
+			Msg:    "already have an account with this phone",
 			Error:  err.Error(),
 		}, nil
 
 	}
 
-	if util.HasError(ctx, err) {
+	if util.HasError(err) {
 		return &pb.CreateAccountResponse{
 			Status: http.StatusInternalServerError,
 			Msg:    "failed",
@@ -53,7 +53,7 @@ func (s *Server) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest
 
 func (s *Server) UserLogin(ctx context.Context, req *pb.UserLoginRequest) (*pb.UserLoginResponse, error) {
 
-	err := s.UserUseCase.UserLogin(ctx, req)
+	userID, err := s.UserUseCase.UserLogin(ctx, req)
 	if err == usecase.ErrNoAccount {
 		return &pb.UserLoginResponse{
 			Status: http.StatusNotAcceptable,
@@ -71,9 +71,21 @@ func (s *Server) UserLogin(ctx context.Context, req *pb.UserLoginRequest) (*pb.U
 
 	}
 
+	var role = "user"
+	token, err := util.GenerateToken(uint(userID), role)
+
+	if util.HasError(err) {
+		return &pb.UserLoginResponse{
+			Status: http.StatusInternalServerError,
+			Msg:    "failed to generate token",
+			Error:  err.Error(),
+		}, nil
+	}
+
 	return &pb.UserLoginResponse{
 		Status: http.StatusAccepted,
 		Msg:    "login success",
+		Token:  token,
 	}, nil
 }
 
@@ -81,22 +93,42 @@ func (s *Server) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest) (*pb
 
 	err := s.UserUseCase.AdminLogin(ctx, req)
 
-	if util.HasError(ctx, err) {
+	if util.HasError(err) {
 		return &pb.AdminLoginResponse{
 			Status: http.StatusNotAcceptable,
 			Msg:    "invalid credentials",
 			Error:  err.Error(),
 		}, nil
 	}
+
+	var role = "suAdmin"
+	token, err := util.GenerateToken(0, role)
+
+	if util.HasError(err) {
+		return &pb.AdminLoginResponse{
+			Status: http.StatusInternalServerError,
+			Msg:    "failed to generate token",
+			Error:  err.Error(),
+		}, nil
+	}
+
 	return &pb.AdminLoginResponse{
 		Status: http.StatusOK,
 		Msg:    "login success",
-		Token: ,
+		Token:  token,
 	}, nil
 }
 
 func (s *Server) ValidateToken(ctx context.Context, req *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
 
-	usecase.va
-
+	userID, err := s.UserUseCase.ValidateToken(ctx, req)
+	if util.HasError(err) {
+		return &pb.ValidateTokenResponse{
+			Status: http.StatusUnauthorized,
+		}, nil
+	}
+	return &pb.ValidateTokenResponse{
+		Status: http.StatusOK,
+		UserID: userID,
+	}, nil
 }

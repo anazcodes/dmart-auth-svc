@@ -1,11 +1,10 @@
 package util
 
 import (
-	"context"
 	"fmt"
 )
 
-func HasError(ctx context.Context, err error) bool {
+func HasError(err error) bool {
 	if err != nil {
 		Logger("has error:", err)
 

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"context"
 	"errors"
 	"strconv"
 	"time"
@@ -15,7 +14,7 @@ import (
 // Returns password hash
 func HashPassword(password string) (string, error) {
 	byte, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	if HasError(context.Background(), nil) {
+	if HasError(nil) {
 		return "", err
 	}
 
@@ -51,22 +50,24 @@ func GetLoginMethod(req *pb.UserLoginRequest) (method string) {
 type jwtClaims struct {
 	ExpiresAt int64
 	Issuer    string
-	UserID    string
-	jwt.Claims
+	UserID    uint
+	Role      string
+	jwt.RegisteredClaims
 }
 
 // GenerateToken can generate the token for user and admin with different secret key, should need to specify the role
-func GenerateToken(userID string, role string) (signedToken string, err error) {
+func GenerateToken(userID uint, role string) (signedToken string, err error) {
 	claims := &jwtClaims{
-		ExpiresAt: time.Now().Add(24 * time.Hour * 30).Unix(),
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 30).Unix(),
 		Issuer:    "auth-svc",
 		UserID:    userID,
+		Role:      role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	switch role {
-	case "admin":
+	case "suAdmin":
 		signedToken, err = token.SignedString([]byte(config.GetConfig().AdminJwtSecret))
 	case "user":
 		signedToken, err = token.SignedString([]byte(config.GetConfig().UserJwtSecret))
@@ -74,39 +75,47 @@ func GenerateToken(userID string, role string) (signedToken string, err error) {
 		err = errors.New("invalid role argument")
 	}
 
-	if HasError(context.Background(), err) {
+	if HasError(err) {
 		return "", err
 	}
 
 	return signedToken, nil
-
 }
 
-func ValidateToken(signedToken string, role string) (claims *jwtClaims, err error) {
+func ValidateTokenHelper(signedToken string, role string) (claims *jwtClaims, err error) {
 	var secretKey string
 
 	switch role {
-	case "admin":
+	case "suAdmin":
 		secretKey = config.GetConfig().AdminJwtSecret
 	case "user":
 		secretKey = config.GetConfig().UserJwtSecret
 	default:
 		err = errors.New("invalid role argument")
 	}
-	if HasError(context.Background(), err) {
+
+	if HasError(err) {
 		return nil, err
 	}
 
 	token, err := jwt.ParseWithClaims(signedToken, &jwtClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
-	if HasError(context.Background(), err) {
+
+	if HasError(err) {
 		return nil, err
 	}
 
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
-		return nil, errors.New("couldn't parse claims")
+		return nil, errors.New("couldn't parse token claims")
+	}
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	if claims.ExpiresAt < time.Now().Unix() {
+		return nil, errors.New("access token expired")
 	}
 
 	return

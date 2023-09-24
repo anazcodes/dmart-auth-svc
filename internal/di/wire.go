@@ -1,8 +1,6 @@
 package di
 
 import (
-	"context"
-
 	"github.com/anazibinurasheed/dmart-auth-svc/internal/config"
 	"github.com/anazibinurasheed/dmart-auth-svc/internal/db"
 	"github.com/anazibinurasheed/dmart-auth-svc/internal/repo"
@@ -11,9 +9,9 @@ import (
 	"github.com/anazibinurasheed/dmart-auth-svc/internal/util"
 )
 
-func InitialiazeDeps(cfg config.Config) (*services.Server, error) {
+func InitializeDeps(cfg config.Config) (*services.Server, error) {
 	db, err := db.InitDB(cfg)
-	if util.HasError(context.Background(), err) {
+	if util.HasError(err) {
 		return &services.Server{}, err
 	}
 

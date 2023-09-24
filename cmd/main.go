@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -15,17 +14,17 @@ import (
 
 func main() {
 	config, err := config.LoadConfigs()
-	if util.HasError(context.Background(), err) {
+	if util.HasError(err) {
 		log.Fatalln("failed to load configs", err)
 	}
 
-	service, err := di.InitialiazeDeps(config)
-	if util.HasError(context.Background(), err) {
-		log.Fatalln("failed to intialize deps", err)
+	service, err := di.InitializeDeps(config)
+	if util.HasError(err) {
+		log.Fatalln("failed to initialize deps", err)
 	}
 
 	listener, err := net.Listen("tcp", config.Port)
-	if util.HasError(context.Background(), err) {
+	if util.HasError(err) {
 		log.Fatalln("failed to create listener ", err)
 	}
 

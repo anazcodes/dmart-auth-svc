@@ -3,7 +3,9 @@ module github.com/anazibinurasheed/dmart-auth-svc
 go 1.18
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/spf13/viper v1.16.0
+	golang.org/x/crypto v0.9.0
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/postgres v1.5.2
@@ -27,7 +29,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

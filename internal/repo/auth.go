@@ -22,15 +22,6 @@ func NewUserRepo(db *gorm.DB) interfaces.UserRepo {
 	return &userRepo{DB: db}
 }
 
-// func (u *userRepo) CreateAccount(ctx context, req *pb.CreateAccountRequest, t payload.Time) error {
-// 	query := `insert into users (username,email,phone,password,created_at,updated_at)
-// 		      values ($1,$2,$3,$4,$5,$6) returning *;`
-// 	utils.HighlightError("create account")
-// 	err := u.DB.Raw(query, req.Username, req.Email, req.Phone, req.Password, t.Now, t.Now).Error
-
-// 	return err
-// }
-
 func (u *userRepo) CreateAccount(ctx context, req *pb.CreateAccountRequest, t payload.Time) error {
 	var data payload.UserAccount
 	query := `insert into users (username,email,phone,password,created_at,updated_at)
